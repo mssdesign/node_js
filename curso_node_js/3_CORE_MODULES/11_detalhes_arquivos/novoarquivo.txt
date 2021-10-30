@@ -1,0 +1,35 @@
+- Executando comando do Vs code em nodeJs sem utilizar a extensão
+    - Escreva no terminal: node "nome_arquivo.extensão"
+
+- Como recuperar dados dos argumentos passados no terminal do node
+    - Utilize o process.argv → Este método retorna um array com o que executa o programa, o que é executado e os parâmetros passados no comando do terminal.
+    
+    ```jsx
+    //Exemplo:
+    
+    console.log(process.argv)
+    
+    const args = process.argv.slice(2) //retorna o array de argumentos direto
+    
+    console.log(args)
+    
+    const nome = args[0].split("=")[1]
+    
+    console.log(nome)
+    
+    const idade = args[1].split("=")[1]
+    
+    console.log(idade)
+    
+    //No terminal escreva: node index.js nome=Matheus idade=22
+    ```
+    
+
+- Limpar console
+    
+    ```jsx
+    //Limpando o console automaticamente após 2 segundos
+    setTimeout(() => {
+        console.clear()
+    }, 2000);
+    ```
