@@ -7,6 +7,7 @@ const fs = require('fs')
 
 operation()
 
+//Painel Inicial
 function operation() {
   inquirer
     .prompt([
@@ -19,6 +20,7 @@ function operation() {
           'Consultar Saldo',
           'Depositar',
           'Sacar',
+          'Transferir',
           'Sair',
         ],
       },
@@ -37,12 +39,14 @@ function operation() {
       } else if (action === 'Sair') {
         console.log(chalk.bgBlue.black('Obrigado por usar o Accounts!'))
         process.exit()
+      } else if (action === 'Transferir') {
+        sendMoney()
       }
     })
     .catch((err) => console.log(err))
 }
 
-//create an account
+//Criando Conta
 function createAccount() {
   console.log(chalk.bgGreen.black('Parabéns por escolher o nosso banco!'))
   console.log(chalk.green('Defina as opções da sua conta a seguir:'))
@@ -50,6 +54,7 @@ function createAccount() {
   buildAccount()
 }
 
+//Construindo conta
 function buildAccount() {
   inquirer
     .prompt([
@@ -130,6 +135,7 @@ function deposit() {
     .catch((err) => console.log(err))
 }
 
+//Checando se existe
 function checkAccount(accountName) {
   if (!fs.existsSync(`accounts/${accountName}.json`)) {
     console.log(chalk.bgRed.black('Esta conta não existe, tente novamente.'))
@@ -139,6 +145,7 @@ function checkAccount(accountName) {
   return true
 }
 
+//Adicionando valores
 function addAmount(accountName, amount) {
   const accountData = getAccount(accountName)
 
@@ -165,6 +172,7 @@ function addAmount(accountName, amount) {
   operation()
 }
 
+//Pegando dados da conta
 function getAccount(accountName) {
   const accountJSON = fs.readFileSync(`accounts/${accountName}.json`, {
     encoding: 'utf8',
@@ -174,7 +182,7 @@ function getAccount(accountName) {
   return JSON.parse(accountJSON)
 }
 
-//show account balance
+//Mostrando extrato da conta
 function getAccountBalance() {
   inquirer
     .prompt([
@@ -237,6 +245,7 @@ function withDraw() {
     .catch((err) => console.log(err))
 }
 
+//Sacando dinheiro
 function removeAmount(accountName, amount) {
   const accountData = getAccount(accountName)
 
@@ -265,4 +274,77 @@ function removeAmount(accountName, amount) {
       `Foi realizado um saque de R$${amount},00 da sua conta. Parabéns!`
     )
   )
+}
+
+//Transferindo dinheiro
+function sendMoney() {
+  inquirer
+    .prompt([
+      {
+        name: 'sender',
+        message: 'Qual o nome da sua conta?',
+      },
+    ])
+    .then((accountParam) => {
+      const sender = accountParam['sender']
+
+      if (!checkAccount(sender)) {
+        return operation()
+      }
+
+      inquirer
+        .prompt([
+          {
+            name: 'amount',
+            message: 'Quanto você quer enviar?',
+          },
+        ])
+        .then((amountParam) => {
+          inquirer
+            .prompt([
+              {
+                name: 'receiver',
+                message: 'Para quem você deseja enviar o dinheiro?',
+              },
+            ])
+            .then((receiverParam) => {
+              const receiver = receiverParam['receiver'];
+              const amount = amountParam['amount'];
+              const receiverData = getAccount(receiver);
+              const senderData = getAccount(sender);
+
+              if (!checkAccount(receiver)) {
+                return sendMoney()
+              }
+
+              senderData.balance -= parseFloat(amount)
+              receiverData.balance += parseFloat(amount)
+
+              fs.writeFileSync(
+                `accounts/${sender}.json`,
+                JSON.stringify(senderData),
+                function (err) {
+                  console.log(err)
+                }
+              )
+
+              fs.writeFileSync(
+                `accounts/${receiver}.json`,
+                JSON.stringify(receiverData),
+                function (err) {
+                  console.log(err)
+                }
+              )
+
+              console.log(
+                chalk.green(
+                  `Parabéns, ${sender}!! O valor de R$${amount},00 foi transferido para ${receiver}. Obrigado por utilizar os nossos serviços.`
+                )
+              )
+            })
+            .catch((err) => console.log(err))
+        })
+        .catch((err) => console.log(err))
+    })
+    .catch((err) => console.log(err))
 }
