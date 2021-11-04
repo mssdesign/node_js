@@ -1,0 +1,18 @@
+body {
+    background-color: paleturquoise;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    height: 100vh;
+    justify-content: center;
+    flex-direction: column;
+}
+
+h1 {
+    font-size: large;
+    color: red;
+}
+
+h6 {
+    color: black;
+}
