@@ -11,10 +11,11 @@ app.get('/', (req, res) => {
 
     const user = {
         name: 'Matheus',
-        surname: 'Soares'
+        surname: 'Soares',
+        age: 22
     }
 
-    res.render('home', { user: user })
+    res.render('home', { user: user }) // { user: user } Adiciona as variáveis que estarão disponíveis no html
 })
 
 app.listen(3000, () => {
